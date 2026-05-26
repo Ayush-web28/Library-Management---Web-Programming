@@ -1,0 +1,58 @@
+NMIMS STME Library Management System - Project Report
+
+1. Introduction
+The NMIMS School of Technology Management and Engineering (STME) Library Management System is a sophisticated, full-stack web application designed to modernize and streamline library operations within an academic environment. Specifically tailored for the unique needs of a high-traffic university library, the system provides a seamless digital interface for students to interact with physical and digital assets, manage discussion room bookings, and track their academic performance through integrated tools like a GPA calculator. By bridging the gap between traditional resource management and modern user expectations, this platform enhances the overall academic experience, ensuring that information and infrastructure remain accessible, organized, and transparent for both students and administrators.
+
+--------------------------------------------------------------------------------
+
+2. Requirement Analysis
+
+The requirement analysis phase for the NMIMS Library System focuses on defining the essential capabilities and constraints required to deliver a robust, user-centric platform. This system is designed to serve two primary user roles: Students and Library Administrators, each with distinct functional needs and access levels.
+
+2.1 Functional Requirements
+- Multi-Factor Login: The system supports both password-based and OTP-based (One Time Password) authentication for enhanced security.
+- Role-Based Access Control (RBAC): Distinct interfaces and permissions for students and admins. Admins have exclusive access to management dashboards.
+- Secure Onboarding: Student registration requires unique identifiers (SAP ID) and uses BCrypt hashing for secure credential storage.
+
+2.2 Non-Functional Requirements
+- Security: High-level encryption for user passwords using the BCrypt algorithm.
+- Performance: Optimized SQL queries to ensure near-instantaneous search results.
+- Usability: A mobile-first UI approach ensuring the library is accessible from any device.
+
+--------------------------------------------------------------------------------
+
+3. Core Modules
+
+3.1 Authentication System
+Features a dual-layered role-selection gateway, allowing users to choose between Student and Admin portals. Following selection, users interact with specific login and signup forms. A highlight of this module is the "Premium OTP Toast," which simulates a secure verification process with high-fidelity visual feedback, reinforcing the system's commitment to security.
+
+3.2 Library Floor Plan (Live Visualizer)
+A "BookMyShow" style interactive seat visualizer (librarySeats.html) that provides a real-time representation of the library layout. The module uses dynamic random shifts to simulate live occupancy, giving the interface a "living" feel and allowing students to check availability before making the visit.
+
+3.3 Room Booking Engine
+A complex backend engine developed with strict validation logic. It prevents past-date bookings and resolves time-slot conflicts by checking all existing reservations. The system utilizes accurate local-time (IST) calculations to ensure precise scheduling across different user sessions.
+
+3.4 Inventory Dashboard (inventory.html)
+An integrated administrator command center designed for rapid asset management. It features an advanced search bar capable of filtering the entire library collection by Title, Author, Subject, or a unique Book ID, allowing for efficient stock updates and record maintenance.
+
+3.5 Student Catalog (books.html)
+A student-facing inventory exploration module. It provides a clean interface for browsing available textbooks and academic resources, enabling students to submit borrow requests with a single click.
+
+3.6 GPA Calculator (gpaCalculator.html)
+A specialized academic module that allows students to track their semester performance. It includes functionality for recording marks across multiple categories (M1, M2, Internals) and a "Prediction Mode" for estimating the performance required in upcoming exams.
+
+3.7 Personal Dashboard (profile.html)
+The primary hub for user activity. It features a dashboard grid that balances static user information with a dynamic history of book requests and room bookings, keeping the user informed of their institutional engagement.
+
+3.8 Manual Record Entry (addbook.html)
+An admin-exclusive page for expanding the library collection. It simplifies the data entry process for new books, ensuring all necessary metadata (Subject, Author, Stock count) is captured correctly.
+
+--------------------------------------------------------------------------------
+
+4. Key Outputs
+
+4.1 Centered Premium Search
+A pill-shaped, modern search bar deployed across the catalog and inventory modules. It is designed for maximum usability and aesthetic appeal, providing a central point of interaction for resource discovery.
+
+4.2 Dashboard Grid
+A clean, two-column layout utilized in the student profile. It creates a visual balance between personal identity information and functional activity data, ensuring that the most relevant information is always "at a glance."

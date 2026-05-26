@@ -1,0 +1,387 @@
+<style>
+    /* Custom Styling for GPA Page */
+    .gpa-page {
+        border-radius: 12px;
+        padding: 1.5rem;
+        min-height: calc(100vh - 100px);
+        color: var(--text-main);
+    }
+
+    .gpa-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--surface-color);
+        backdrop-filter: var(--glass-blur);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px solid var(--surface-border);
+        box-shadow: var(--card-shadow);
+        color: var(--text-main);
+    }
+
+    .gpa-score {
+        font-size: 2.2rem;
+        /* Slightly smaller */
+        font-weight: bold;
+    }
+
+    .semesters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .semester-box {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        /* Reduced from 1.5rem */
+        border-radius: 12px;
+        border: 2px dashed var(--gpa-olive);
+    }
+
+    .box-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        /* Reduced from 2rem to save space */
+        margin-top: 1rem;
+        justify-content: center;
+    }
+
+    /* Floating subject box - Fixed Size Only */
+    .subject-box {
+        background-color: var(--surface-color);
+        border-radius: 15px;
+        padding: 1.2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        border-top: 5px solid var(--gpa-olive);
+        width: 330px;
+        /* SHRUNK to ensure 3 per row */
+        flex: 0 0 330px;
+        /* Maintain exact size */
+    }
+
+    .subject-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Subject Box Layout Components */
+    .subject-top-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+        padding-top: 0.2rem;
+    }
+
+    .subject-header-input {
+        width: 200px !important;
+        /* Smaller header */
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border: none !important;
+        border-bottom: 2px solid var(--primary-color) !important;
+        background: transparent !important;
+        color: var(--primary-color);
+        margin-bottom: 0 !important;
+        padding: 4px 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .header-credits-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .header-credits-box label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-soft);
+        text-transform: uppercase;
+    }
+
+    .header-credits-box input {
+        width: 50px !important;
+        font-size: 1rem !important;
+        padding: 0.3rem !important;
+    }
+
+    .subject-box input,
+    .subject-box select {
+        width: 125px;
+        /* Shrunk for smaller card */
+        height: 42px;
+        /* Force identical height */
+        box-sizing: border-box;
+        /* Force standardized boxing */
+        text-align: center;
+        padding: 0.5rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 10px;
+        background: var(--bg-color);
+        color: var(--text-main);
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .subject-box input:focus {
+        border-color: var(--secondary-color);
+        outline: none;
+        box-shadow: 0 4px 15px rgba(95, 75, 139, 0.25);
+        transform: translateY(-1px);
+    }
+
+    /* Symmetric 2x2 Grid */
+    .input-grid-2x2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 20px 30px;
+        /* Reduced gaps to fit in 370px card */
+        justify-items: center;
+        margin: 0 auto;
+        max-width: 450px;
+    }
+
+    .input-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .input-cell label {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+        margin-bottom: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: var(--error);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .remove-sem-btn {
+        padding: 0.4rem 1rem;
+        background: var(--error);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .add-sem-btn {
+        width: 100%;
+        background-color: var(--gpa-olive);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        margin-top: 2rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .mode-toggle {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .mode-toggle:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+    }
+
+    .result-view {
+        background-color: rgba(95, 75, 139, 0.08);
+        /* Lighter violet */
+        padding: 15px 30px;
+        border-radius: 15px;
+        margin: 2rem auto 0.5rem;
+        width: fit-content;
+        /* Only as wide as needed */
+        min-width: 280px;
+        text-align: center;
+        font-weight: 800;
+        border: 2px solid var(--primary-color);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        display: block;
+        /* Ensure centering works with margin: auto */
+    }
+</style>
+
+<div class="gpa-page">
+    <div class="gpa-header">
+        <div>
+            <h1 style="margin-bottom: 0.5rem;">Interactive CGPA Calculator</h1>
+            <button class="mode-toggle" ng-click="toggleMode()">
+                {{ isPredictionMode ? 'Mode: Grade Prediction 🔄' : 'Mode: Manual Entry 🔄' }}
+            </button>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 1rem; opacity: 0.9;">Total Cummulative GPA</div>
+            <div class="gpa-score">{{ totalGPA | number:2 }}</div>
+            <button class="btn-primary" style="margin-top: 10px; padding: 0.4rem 1rem;" ng-click="calculateGPA()">Update
+                GPA</button>
+        </div>
+    </div>
+
+    <!-- Active Semester Selector -->
+    <div
+        style="background-color: rgba(0,0,0,0.1); padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--gpa-olive);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <label style="font-weight: bold; font-size: 1.1rem;">Select Semester:</label>
+            <select ng-model="activeSemesterIndex"
+                style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1.1rem; background: var(--surface-color); color: var(--text-main); font-weight: bold; width: 200px;">
+                <option ng-repeat="sem in semesters track by $index" ng-value="$index">Semester {{ sem.id }}</option>
+            </select>
+        </div>
+        <button class="remove-sem-btn" style="background: var(--primary-color);" ng-click="addSemester()"
+            ng-if="semesters.length < 10">+ Add</button>
+    </div>
+
+    <!-- Active Semester Container -->
+    <div class="semesters-container">
+        <div class="semester-box fade-in" ng-init="semester = semesters[activeSemesterIndex]">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--surface-border); padding-bottom: 1rem;">
+                <h3 style="margin: 0;">Semester {{ semesters[activeSemesterIndex].id }}</h3>
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                    <div style="font-weight: bold; color: var(--text-main); font-size: 1.2rem;">Sem GPA: <span
+                            style="color: var(--primary-color);">{{ semesters[activeSemesterIndex].gpa | number:2
+                            }}</span></div>
+                    <button class="remove-sem-btn" ng-click="removeSemester(activeSemesterIndex)"
+                        title="Remove Semester" ng-if="semesters.length > 1">Hold/Drop Sem</button>
+                </div>
+            </div>
+
+            <div class="box-container">
+                <div class="subject-box" ng-repeat="subject in semesters[activeSemesterIndex].subjects track by $index">
+                    <button class="remove-btn" ng-click="removeSubject(semesters[activeSemesterIndex], $index)"
+                        title="Remove Subject">✖</button>
+
+                    <!-- Header Row: Subject & Credits -->
+                    <div class="subject-top-row">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <input type="text" class="subject-header-input" ng-model="subject.name"
+                                placeholder="Subject Name"
+                                ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                            <span class="error-text" ng-if="subject.nameError"
+                                style="font-size: 0.75rem; margin-top: 5px;">
+                                <i class="fa-solid fa-circle-exclamation"></i> {{ subject.nameError }}
+                            </span>
+                        </div>
+
+                        <div class="header-credits-box">
+                            <label>Credits</label>
+                            <input type="number" ng-model="subject.credits" min="1" max="10"
+                                ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                        </div>
+                    </div>
+
+                    <!-- Main Input Grid: 2x2 -->
+                    <div class="input-grid-2x2">
+                        <!-- Top Left: M1 -->
+                        <div class="input-cell">
+                            <label>M1 (Max 10)</label>
+                            <input type="number" ng-model="subject.m1" min="0" max="10"
+                                ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                        </div>
+
+                        <!-- Top Right: M2 -->
+                        <div class="input-cell">
+                            <label>M2 (Max 10)</label>
+                            <input type="number" ng-model="subject.m2" min="0" max="10"
+                                ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                        </div>
+
+                        <!-- Bottom Left: Internals -->
+                        <div class="input-cell">
+                            <label>Internals (Max 30)</label>
+                            <input type="number" ng-model="subject.internals" min="0" max="30"
+                                ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                        </div>
+
+                        <!-- Bottom Right: Toggle between Term End / Desired Grade -->
+                        <div class="input-cell">
+                            <!-- Manual Mode -->
+                            <div ng-if="!isPredictionMode"
+                                style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                                <label>Term End (Max 100)</label>
+                                <input type="number" ng-model="subject.termEndMarks" min="0" max="100"
+                                    ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                            </div>
+
+                            <!-- Prediction Mode -->
+                            <div ng-if="isPredictionMode"
+                                style="width: 100%; display: flex; flex-direction: column; align-items: left;">
+                                <label>Desired <br>Grade</label>
+                                <select ng-model="subject.desiredGrade"
+                                    ng-change="calculateBox(semesters[activeSemesterIndex], subject)">
+                                    <option value="O">O (90-100)</option>
+                                    <option value="A+">A+ (80-89)</option>
+                                    <option value="A">A (70-79)</option>
+                                    <option value="B+">B+ (60-69)</option>
+                                    <option value="B">B (50-59)</option>
+                                    <option value="C">C (40-49)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Centered Prediction / Result Footer -->
+                    <div class="result-view">
+                        ICA Score: {{ subject.ica }} / 50 <br>
+                        <div ng-if="!isPredictionMode">
+                            Final Score: {{ subject.finalScore }} | Grade: <span style="color: var(--primary-color);">{{
+                                subject.grade }}</span>
+                        </div>
+                        <div ng-if="isPredictionMode">
+                            <span style="color: var(--reading-border); font-weight: bold;">Req. Term End: {{
+                                subject.requiredTermEnd }}</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Add Subject to Semester -->
+            <button class="btn-secondary" style="margin-top: 1.5rem; width: 100%; border-style: dashed; padding: 1rem;"
+                ng-click="addSubject(semesters[activeSemesterIndex])">
+                + Add Subject to Semester {{ semesters[activeSemesterIndex].id }}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,454 @@
+<style>
+    .legend {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        background: var(--surface-color);
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .box {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 2px solid transparent;
+    }
+
+    .box.available {
+        background-color: var(--success);
+    }
+
+    .box.occupied {
+        background-color: var(--error);
+    }
+
+    .box.pc {
+        border-color: var(--pc-border);
+    }
+
+    .box.reading {
+        border-color: var(--reading-border);
+    }
+
+    /* Modern Blueprint Grid System */
+    .library-grid-container {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--surface-color);
+        border: 4px solid var(--accent-color);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+    }
+
+    @media(max-width: 900px) {
+        .library-grid-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Left Side: Seatings and PCs */
+    .floor-left {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .seating-zone-top,
+    .seating-zone-bottom {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Table Groups */
+    .table-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(59, 130, 246, 0.05);
+        padding: 1rem;
+        border: 2px dashed var(--reading-border);
+        border-radius: 12px;
+    }
+
+    .table-name {
+        font-size: 0.8rem;
+        color: var(--text-soft);
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 8px 0;
+    }
+
+    .seat-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .seat {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 2px solid var(--reading-border);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .seat:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .seat.available {
+        background-color: var(--success);
+        border-color: transparent;
+    }
+
+    .seat.occupied {
+        background-color: var(--error);
+        border-color: transparent;
+    }
+
+    .seat.pc {
+        border-color: var(--pc-border);
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: var(--text-main);
+        background: var(--bg-color);
+        border-width: 3px;
+    }
+
+    .seat.pc.occupied {
+        background-color: var(--error);
+        color: white;
+        border-color: transparent;
+    }
+
+    .seat.pc.available {
+        background-color: var(--success);
+        color: white;
+        border-color: transparent;
+    }
+
+    /* Mid PC Zone */
+    .pc-zone {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        padding: 1.5rem;
+        border: 2px solid var(--pc-border);
+        border-radius: 12px;
+        background: rgba(245, 158, 11, 0.05);
+        flex-wrap: wrap;
+    }
+
+    /* Right Side: Rooms & Bloomberg */
+    .floor-right {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        border-left: 2px solid var(--border-color);
+        padding-left: 2rem;
+    }
+
+    .room-block {
+        background: rgba(95, 75, 139, 0.10);
+        border: 2px solid var(--room-border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--room-border);
+        padding: 2rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .room-block:hover {
+        background: rgba(95, 75, 139, 0.20);
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(95, 75, 139, 0.30);
+    }
+
+    .bloomberg-zone {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        padding: 1.5rem;
+        border: 2px solid var(--pc-border);
+        border-radius: 12px;
+        background: rgba(245, 158, 11, 0.1);
+    }
+</style>
+
+<div class="page-header" style="justify-content: space-between; display: flex; align-items: center;">
+    <div>
+        <h2 style="margin-bottom: 0.5rem;">Library Floor Plan</h2>
+        <p style="color: var(--text-soft); font-style: italic;">Live seat tracking & Room Booking</p>
+        <br>
+    </div>
+    <div style="font-size: 2.5rem; color: var(--primary-color); opacity: 0.2;"><i class="fa-solid fa-map"></i></div>
+</div>
+
+<!-- Statistics Cards -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div
+        style="background: var(--surface-color); padding: 1.5rem; border-radius: 12px; box-shadow: var(--card-shadow); text-align: center; border-bottom: 4px solid var(--text-main);">
+        <div style="color: var(--text-soft); font-size: 0.9rem; font-weight: bold; text-transform: uppercase;">Total
+            Inside</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: var(--text-main); margin-top: 0.5rem;">{{
+            occupancy.total_students }}</div>
+    </div>
+    <div
+        style="background: var(--surface-color); padding: 1.5rem; border-radius: 12px; box-shadow: var(--card-shadow); text-align: center; border-bottom: 4px solid var(--text-main);">
+        <div style="color: var(--text-soft); font-size: 0.9rem; font-weight: bold; text-transform: uppercase;">Occupied
+            PCs</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: var(--text-main); margin-top: 0.5rem;">{{
+            occupancy.occupied_pcs }} / {{ totalPcs }}</div>
+    </div>
+    <div
+        style="background: var(--surface-color); padding: 1.5rem; border-radius: 12px; box-shadow: var(--card-shadow); text-align: center; border-bottom: 4px solid var(--text-main);">
+        <div style="color: var(--text-soft); font-size: 0.9rem; font-weight: bold; text-transform: uppercase;">Students
+            in Rooms</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: var(--text-main); margin-top: 0.5rem;">{{
+            occupancy.in_rooms }}</div>
+    </div>
+    <div
+        style="background: var(--surface-color); padding: 1.5rem; border-radius: 12px; box-shadow: var(--card-shadow); text-align: center; border-bottom: 4px solid var(--text-main);">
+        <div style="color: var(--text-soft); font-size: 0.9rem; font-weight: bold; text-transform: uppercase;">Occupied
+            Reading</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: var(--text-main); margin-top: 0.5rem;">{{
+            occupancy.open_reading_occupied }} / {{ totalReadingSeats }}</div>
+    </div>
+</div>
+
+<div class="legend">
+    <div class="legend-item">
+        <div class="box pc available"></div> PC (Avail)
+    </div>
+    <div class="legend-item">
+        <div class="box pc occupied"></div> PC (Occ)
+    </div>
+    <div class="legend-item">
+        <div class="box reading available"></div> Seat (Avail)
+    </div>
+    <div class="legend-item">
+        <div class="box reading occupied"></div> Seat (Occ)
+    </div>
+</div>
+
+<!-- RESPONSIVE GRID BLUEPRINT VISUALIZER -->
+<div class="library-grid-container">
+
+    <!-- LEFT SIDE: Main Reading Floor and PCs -->
+    <div class="floor-left">
+
+        <!-- Top Seating Matrix (6 Tables) -->
+        <div class="seating-zone-top">
+            <div class="table-group" ng-repeat="table in [0,1,2,3,4,5]">
+                <div class="seat-row">
+                    <div class="seat reading {{visualSeats[table*8].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 1].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 2].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 3].status}}"></div>
+                </div>
+                <div class="table-name">Seating {{$index + 1}}</div>
+                <div class="seat-row">
+                    <div class="seat reading {{visualSeats[table*8 + 4].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 5].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 6].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 7].status}}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle PCs Bordering the middle aisle -->
+        <div class="pc-zone">
+            <div class="seat pc {{pcSeats[0].status}}">PC1</div>
+            <div class="seat pc {{pcSeats[1].status}}">PC2</div>
+            <div class="seat pc {{pcSeats[2].status}}">PC3</div>
+            <div class="seat pc {{pcSeats[3].status}}">PC4</div>
+        </div>
+
+        <!-- Bottom Seating Matrix (6 Tables) -->
+        <div class="seating-zone-bottom">
+            <div class="table-group" ng-repeat="table in [6,7,8,9,10,11]">
+                <div class="seat-row">
+                    <div class="seat reading {{visualSeats[table*8].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 1].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 2].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 3].status}}"></div>
+                </div>
+                <div class="table-name">Seating {{$index + 7}}</div>
+                <div class="seat-row">
+                    <div class="seat reading {{visualSeats[table*8 + 4].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 5].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 6].status}}"></div>
+                    <div class="seat reading {{visualSeats[table*8 + 7].status}}"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE: Rooms and Bloomberg -->
+    <div class="floor-right">
+
+        <!-- Discussion Rooms Rendered via ng-repeat -->
+        <div class="room-block glass-panel" ng-repeat="room in discussionRooms"
+            ng-class="{'room-occupied': room.is_currently_occupied, 'room-free': !room.is_currently_occupied}"
+            style="text-align: center;" ng-click="selectRoom(room.id)">
+            <h4 style="font-size: 1rem; color: var(--primary-color);">{{ room.room_name }}</h4>
+            <div style="font-size: 0.8rem; color: var(--text-soft);">
+                <i class="fa-solid fa-users"></i> {{ room.capacity }}
+            </div>
+            <div style="font-size: 0.7rem; margin-top: 5px; font-weight: bold;"
+                ng-style="{'color': room.is_currently_occupied ? 'var(--error)' : 'var(--success)'}">
+                {{ room.is_currently_occupied ? 'OCCUPIED' : 'FREE' }}
+            </div>
+        </div>
+
+        <!-- Bloomberg Terminal Desks -->
+        <div class="bloomberg-zone">
+            <span
+                style="font-size: 0.8rem; font-weight: bold; color: var(--text-soft); text-transform: uppercase;">Bloomberg
+                Terminals</span>
+            <div style="display: flex; gap: 1rem;">
+                <div class="seat pc {{pcSeats[4].status}}" style="width: 60px; border-radius: 8px;">B1</div>
+                <div class="seat pc {{pcSeats[5].status}}" style="width: 60px; border-radius: 8px;">B2</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Room Booking Form -->
+<div class="form-card" style="margin: 3rem auto; max-width: 600px;" id="bookingFormSection"
+    ng-if="user.role !== 'admin'">
+    <h3 style="margin-bottom: 1.5rem; text-align: center; font-family: 'Playfair Display', serif;"><i
+            class="fa-regular fa-calendar-check"></i> Book Discussion Room</h3>
+    <form name="roomForm" ng-submit="bookRoom()" novalidate>
+
+        <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-start;">
+            <div style="flex: 1;">
+                <label>Select Room</label>
+                <!-- Custom Room Dropdown (Requirement 1) -->
+                <div class="custom-dropdown-container" style="min-width: 0; width: 100%;">
+                    <div class="dropdown-header" ng-click="toggleRoomDropdown()" ng-class="{'active': showRoomDropdown}"
+                        style="padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.95rem; justify-content: space-between;">
+                        <span>{{ getSelectedRoomLabel() }}</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" ng-class="{'active': showRoomDropdown}"
+                        style="border-radius: 12px; top: calc(100% + 5px);">
+                        <div class="dropdown-item" ng-repeat="room in discussionRooms"
+                            ng-class="{'selected': booking.room_id == room.id}" ng-click="selectDropdownRoom(room)"
+                            style="text-align: left; padding: 10px 15px; font-size: 0.9rem;">
+                            {{room.room_name}} (Max: {{room.capacity}})
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" ng-model="booking.room_id" required name="roomId">
+                <span class="error-text" ng-if="formSubmitted && !booking.room_id && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a room.
+                </span>
+            </div>
+            <div style="flex: 1;">
+                <label>Date</label>
+                <input type="date" ng-model="booking.date" required name="bookingDate" style="padding: 0.75rem 1rem;"
+                    ng-attr-min="{{todayDate}}" ng-change="fetchBookedSlots()">
+                <span class="error-text" ng-if="formSubmitted && roomForm.bookingDate.$invalid && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a valid future date.
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-start;">
+            <div style="flex: 1;">
+                <label>Time Slot</label>
+                <!-- Custom Slot Dropdown (Requirement 1) -->
+                <div class="custom-dropdown-container" style="min-width: 0; width: 100%;">
+                    <div class="dropdown-header" ng-click="toggleSlotDropdown()" ng-class="{'active': showSlotDropdown}"
+                        style="padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.95rem; justify-content: space-between;">
+                        <span>{{ getSelectedSlotLabel() }}</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" ng-class="{'active': showSlotDropdown}"
+                        style="border-radius: 12px; top: calc(100% + 5px);">
+                        <div class="dropdown-item" ng-repeat="slot in timeSlots"
+                            ng-class="{'selected': booking.time_slot === slot}"
+                            ng-click="!isSlotDisabled(slot) && selectDropdownSlot(slot)"
+                            ng-style="{'opacity': isSlotDisabled(slot) ? '0.5' : '1', 'cursor': isSlotDisabled(slot) ? 'not-allowed' : 'pointer'}"
+                            style="text-align: left; padding: 10px 15px; font-size: 0.9rem;">
+                            {{slot}} {{ isSlotDisabled(slot) ? '' : '' }}
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" ng-model="booking.time_slot" required name="timeSlot">
+                <span class="error-text" ng-if="formSubmitted && !booking.time_slot && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a time slot.
+                </span>
+            </div>
+            <div style="flex: 1;">
+                <label>
+                    Number of Students
+                    <span ng-if="getSelectedRoom()"
+                        style="color: var(--primary-color); font-size: 0.8rem; font-weight: normal;">
+                        (Max: {{getSelectedRoom().capacity}})
+                    </span>
+                </label>
+                <input type="number" ng-model="booking.num_students" name="numStudents" min="1"
+                    ng-attr-max="{{getSelectedRoomCapacity()}}" required placeholder="Number of attendees">
+                <span class="error-text" ng-if="formSubmitted && roomForm.numStudents.$error.required && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Number of students is required.
+                </span>
+                <span class="error-text" ng-if="formSubmitted && roomForm.numStudents.$error.min && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Minimum 1 student required.
+                </span>
+                <span class="error-text" ng-if="formSubmitted && roomForm.numStudents.$error.max && !successMsg">
+                    <i class="fa-solid fa-circle-exclamation"></i> Exceeds capacity of {{getSelectedRoomCapacity()}} for
+                    this room.
+                </span>
+            </div>
+        </div>
+
+        <div class="error-text" ng-if="errorMsg" style="margin-bottom: 1rem; text-align: center; font-size: 0.9rem;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ errorMsg }}
+        </div>
+        <div style="color: var(--success); margin-bottom: 1rem; font-weight: bold; text-align: center;"
+            ng-if="successMsg">
+            <i class="fa-solid fa-circle-check"></i> {{ successMsg }}
+        </div>
+
+        <button type="submit" class="btn-primary">Submit Request</button>
+    </form>
+</div>

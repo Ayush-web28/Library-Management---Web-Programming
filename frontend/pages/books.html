@@ -1,0 +1,147 @@
+<div class="page-header" style="justify-content: space-between; display: flex; align-items: center;">
+    <div>
+        <h2 style="margin-bottom: 0.5rem;">Library Catalog & Resources</h2>
+        <p style="color: var(--text-soft); font-style: italic;">Explore over 50+ books</p><br>
+    </div>
+    <div style="font-size: 2.5rem; color: var(--primary-color); opacity: 0.2;"><i
+            class="fa-solid fa-book-journal-whills"></i></div>
+</div>
+
+<!-- Search and Filter (Requirement 7: 2/3 Search, 1/3 Filter) -->
+<div class="search-filter-container"
+    style="display: flex; gap: 1rem; margin-bottom: 2.5rem; flex-wrap: wrap; align-items: flex-start;">
+    <!-- Search Tab (2/3 width) -->
+    <div class="glass-panel"
+        style="flex: 2; height: 56px; box-sizing: border-box; padding: 0 2rem; border-radius: 30px; display: flex; align-items: center; min-width: 300px; border: 2px solid var(--primary-color);">
+        <i class="fa-solid fa-magnifying-glass"
+            style="color: var(--primary-color); font-size: 1.3rem; margin-right: 15px;"></i>
+        <input type="text" ng-model="searchQuery" ng-change="fetchBooks()"
+            placeholder="Search catalog by title, author, or subject..."
+            style="flex: 1; border: none; background: transparent; font-size: 1.1rem; color: var(--text-main); font-family: 'Inter', sans-serif; outline: none; padding: 0; min-height: 100%;">
+    </div>
+
+    <!-- Filter Tab (1/3 width) -->
+    <div class="custom-dropdown-container"
+        style="flex: 1; min-width: 200px; height: 56px; margin: 0; box-sizing: border-box;">
+        <div class="dropdown-header" ng-click="toggleSubjectDropdown()" ng-class="{'active': showSubjectDropdown}"
+            style="border-radius: 30px; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; border: 2px solid var(--primary-color); box-sizing: border-box;">
+            {{ getSubjectLabel(filterSubject) }}
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="dropdown-menu" ng-class="{'active': showSubjectDropdown}" style="top: calc(100% + 5px);">
+            <div class="dropdown-item" ng-repeat="subject in subjects"
+                ng-class="{'selected': filterSubject === subject.value}" ng-click="selectSubject(subject)">
+                {{ subject.label }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Messages (Internal per book) -->
+<!-- Global alerts removed as per request to keep info inside book boxes only -->
+
+<!-- Books Grid Full Width -->
+<div class="grid-container" style="width: 100%;">
+    <div class="card" ng-repeat="book in books">
+        <div class="card-image"
+            style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-book-journal-whills" style="font-size: 5rem; color: white; opacity: 0.3;"></i>
+            <!-- Overlay tags -->
+            <div
+                style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                {{ book.subject }}
+            </div>
+            <div ng-if="book.has_soft_copy"
+                style="position: absolute; bottom: 10px; left: 10px; background: var(--success); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                <i class="fa-solid fa-file-pdf"></i> PDF Available
+            </div>
+        </div>
+        <div class="card-content">
+            <h3 class="card-title">{{ book.title }}</h3>
+            <div class="card-subtitle">{{ book.author }}</div>
+
+            <!-- Success Span for Book Card -->
+            <div ng-if="book.requestedSuccessfully"
+                style="color: var(--success); font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; text-align: center; background: rgba(46, 204, 113, 0.1); padding: 5px; border-radius: 4px;">
+                <i class="fa-solid fa-circle-check"></i> Request made successfully!
+            </div>
+            
+            <!-- Error Span for Book Card -->
+            <div ng-if="book.requestError" class="error-text" style="margin-bottom: 0.5rem; text-align: center; font-size: 0.9rem;">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ book.requestError }}
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="margin-top: auto; display: flex; gap: 0.5rem;">
+                <button class="btn-secondary" style="flex: 1;" ng-click="openModal(book)">
+                    <i class="fa-solid fa-eye"></i> Details
+                </button>
+
+                <!-- Request / Cancel Toggle -->
+                <button ng-if="!book.is_requested" class="btn-primary" style="flex: 1.5; padding: 0.6rem;"
+                    ng-disabled="book.available_copies <= 0" ng-click="requestHardCopy(book)">
+                    <i class="fa-solid fa-plus"></i> Request
+                </button>
+                <button ng-if="book.is_requested" class="btn-secondary"
+                    style="flex: 1.5; padding: 0.6rem; border-color: var(--error); color: var(--error);"
+                    ng-click="cancelRequest(book)">
+                    <i class="fa-solid fa-xmark"></i> Cancel Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div ng-if="books.length === 0"
+        style="grid-column: 1 / -1; text-align: center; color: var(--text-soft); padding: 5rem 0;">
+        <i class="fa-solid fa-book-open" style="font-size: 4rem; opacity: 0.2; margin-bottom: 1rem;"></i>
+        <h3>No books found matching your criteria.</h3>
+    </div>
+</div>
+
+<!-- Detailed Modal View -->
+<div class="modal-overlay" ng-class="{'active': selectedBook !== null}">
+    <div class="modal-content" ng-if="selectedBook">
+        <button class="modal-close" ng-click="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+
+        <!-- Large Cover -->
+        <div
+            style="flex: 1; min-height: 400px; border-radius: 12px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); box-shadow: var(--card-shadow); display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-book-open" style="font-size: 8rem; color: white; opacity: 0.2;"></i>
+        </div>
+
+        <!-- Details -->
+        <div style="flex: 1.5; display: flex; flex-direction: column; justify-content: center;">
+            <div class="status-badge"
+                style="background: var(--primary-color); display: inline-block; width: fit-content; margin-bottom: 1rem;">
+                {{ selectedBook.subject | uppercase }}
+            </div>
+            <h1
+                style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2;">
+                {{ selectedBook.title }}
+            </h1>
+            <h3 style="color: var(--text-soft); font-weight: 400; margin-bottom: 2rem; font-style: italic;">
+                Written by {{ selectedBook.author }}
+            </h3>
+
+            <!-- Modal Details -->
+            <div
+                style="background: var(--bg-color); padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 2rem; width: fit-content;">
+                <div style="font-size: 2rem; color: var(--primary-color); font-weight: bold;">{{
+                    selectedBook.total_pages }}</div>
+                <div style="color: var(--text-soft); font-size: 0.8rem; text-transform: uppercase;">Total Pages</div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: auto;">
+                <button ng-if="selectedBook.has_soft_copy" class="btn-primary" style="flex: 1; padding: 1rem;"
+                    ng-click="downloadSoftCopy(selectedBook.soft_copy_url)">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Download PDF
+                </button>
+                <button ng-if="!selectedBook.has_soft_copy" class="btn-secondary"
+                    style="flex: 1; opacity: 0.5; padding: 1rem; cursor: not-allowed;" disabled>
+                    <i class="fa-solid fa-ban"></i> No PDF Available
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

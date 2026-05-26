@@ -1,0 +1,89 @@
+<!-- Add Book View -->
+<div class="admin-panel glass-panel" style="margin-top: 0;">
+    <h2><i class="fa-solid fa-circle-plus"></i> Add New Book</h2>
+    <p style="color: var(--text-soft); margin-bottom: 2rem;">Provision newly acquired physical books into the digital catalog ecosystem.</p>
+
+    <div style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 12px; border: 1px dashed var(--surface-border); max-width: 600px; margin: 0 auto;">
+        <form name="addBookForm" ng-submit="addBook()" novalidate>
+
+            <div class="form-group">
+                <label>Book ID (Unique Identifier)</label>
+                <input type="text" ng-model="newBook.book_id" name="book_id" required placeholder="e.g. LIB-CS-101">
+                <span class="error-text" ng-show="addBookForm.book_id.$touched && addBookForm.book_id.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Book ID is required for cataloging.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label>Book Title</label>
+                <input type="text" ng-model="newBook.title" name="title" required minlength="2" placeholder="e.g. Introduction to Algorithms">
+                <span class="error-text" ng-show="addBookForm.title.$touched && addBookForm.title.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Book title is required.
+                </span>
+                <span class="error-text" ng-show="addBookForm.title.$touched && addBookForm.title.$error.minlength">
+                    <i class="fa-solid fa-circle-exclamation"></i> Title must be at least 2 characters.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label>Author</label>
+                <input type="text" ng-model="newBook.author" name="author" required minlength="2" placeholder="e.g. Thomas H. Cormen">
+                <span class="error-text" ng-show="addBookForm.author.$touched && addBookForm.author.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Author name is required.
+                </span>
+                <span class="error-text" ng-show="addBookForm.author.$touched && addBookForm.author.$error.minlength">
+                    <i class="fa-solid fa-circle-exclamation"></i> Author name must be at least 2 characters.
+                </span>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 1rem;">
+                <div style="flex:2;">
+                    <label>Subject</label>
+                    <!-- Custom Subject Dropdown (Requirement 1) -->
+                    <div class="custom-dropdown-container" style="min-width: 0; width: 100%;">
+                        <div class="dropdown-header" ng-click="toggleAddSubject()" ng-class="{'active': showAddSubjectDropdown}" 
+                             style="padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.95rem; justify-content: space-between;">
+                            <span>{{ getAddSubjectLabel() }}</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu" ng-class="{'active': showAddSubjectDropdown}" style="border-radius: 12px; top: calc(100% + 5px);">
+                            <div class="dropdown-item" 
+                                 ng-repeat="subj in dynamicSubjects" 
+                                 ng-class="{'selected': newBook.subject === subj}"
+                                 ng-click="selectAddSubject(subj)"
+                                 style="text-align: left; padding: 10px 15px; font-size: 0.9rem;">
+                                {{ subj }}
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" ng-model="newBook.subject" required name="subject">
+                    <span class="error-text" ng-show="addBookForm.subject.$touched && !newBook.subject">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please select a subject category.
+                    </span>
+                </div>
+                <div style="flex:1;">
+                    <label>Total Copies</label>
+                    <input type="number" ng-model="newBook.total_copies" name="total_copies" min="1" max="100" required>
+                    <span class="error-text" ng-show="addBookForm.total_copies.$touched && addBookForm.total_copies.$error.required">
+                        <i class="fa-solid fa-circle-exclamation"></i> Number of copies is required.
+                    </span>
+                    <span class="error-text" ng-show="addBookForm.total_copies.$touched && addBookForm.total_copies.$error.min">
+                        <i class="fa-solid fa-circle-exclamation"></i> Must be at least 1 copy.
+                    </span>
+                    <span class="error-text" ng-show="addBookForm.total_copies.$touched && addBookForm.total_copies.$error.max">
+                        <i class="fa-solid fa-circle-exclamation"></i> Cannot exceed 100 copies.
+                    </span>
+                </div>
+            </div>
+            
+            <div class="error-text" ng-show="addBookError" style="margin-bottom: 1rem;">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ addBookError }}
+            </div>
+            <div style="color: var(--success); margin-bottom: 1rem; font-weight: bold;" ng-show="addBookSuccess">
+                <i class="fa-solid fa-circle-check"></i> {{ addBookSuccess }}
+            </div>
+            
+            <button type="submit" class="btn-primary" ng-disabled="addBookForm.$invalid">Add to Library Database</button>
+        </form>
+    </div>
+</div>

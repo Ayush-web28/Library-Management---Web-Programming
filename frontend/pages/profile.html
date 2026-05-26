@@ -1,0 +1,444 @@
+<style>
+    .hero-banner {
+        background: transparent;
+        padding: 4rem 2rem 2rem;
+        /* Reduced bottom padding */
+        color: var(--text-main);
+        text-align: center;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .hero-banner h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color) !important;
+        text-shadow: none !important;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .hero-banner p {
+        color: var(--text-soft) !important;
+        font-weight: 600;
+    }
+
+    .hero-search {
+        max-width: 500px;
+        margin: 2rem auto 0;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .hero-search input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 30px;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-search button {
+        background: var(--surface-color);
+        color: var(--primary-color);
+        border: none;
+        padding: 0 1.5rem;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .hero-search button:hover {
+        transform: scale(1.05);
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Admin specific */
+    .admin-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--surface-border);
+        padding-bottom: 0rem;
+    }
+
+    .admin-tab {
+        background: transparent;
+        border: none;
+        color: var(--text-soft);
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.8rem 0;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .admin-tab i {
+        margin-right: 8px;
+    }
+
+    .admin-tab:hover:not(.active) {
+        color: var(--text-main);
+        opacity: 0.8;
+    }
+
+    .admin-tab.active {
+        background: transparent !important;
+        color: var(--primary-color) !important;
+        border-bottom: 3px solid var(--primary-color) !important;
+        opacity: 1 !important;
+    }
+
+    .notification-banner {
+        background: rgba(39, 174, 96, 0.08);
+        border: 2px solid var(--success);
+        color: var(--text-main);
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.12);
+    }
+</style>
+
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <h1>Welcome back, {{ profile.name }}!</h1>
+    <p style="font-size: 1.1rem;">Manage your library resources, seating, and academics.</p>
+</div>
+
+<!-- Booking Notification Alert -->
+
+
+<div class="dashboard-grid glass-panel" style="padding: 2rem; border-radius: 16px; grid-template-columns: 295px 1fr;">
+    <!-- Left Column: User Overview -->
+    <div
+        style="border-right: 1px solid var(--surface-border); padding-right: 1.5rem; display: flex; flex-direction: column;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div
+                style="width: 100px; height: 100px; background: var(--primary-gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; box-shadow: 0 10px 20px rgba(95, 75, 139, 0.35);">
+                <i class="fa-solid fa-user-astronaut"></i>
+            </div>
+            <h3 style="font-size: 1.4rem;">{{ profile.name }}</h3>
+            <div class="status-badge"
+                style="background: var(--primary-color); margin-top: 0.5rem; display: inline-block; color: white;">{{
+                profile.role | uppercase }}</div>
+        </div>
+
+        <!-- Word-break added for long emails -->
+        <div
+            style="margin: 0 auto; width: fit-content; display: flex; flex-direction: column; gap: 1.2rem; color: var(--text-main); font-size: 0.95rem; white-space: nowrap;">
+            <div style="display: flex; align-items: center;"><i class="fa-solid fa-id-badge"
+                    style="width: 20px; margin-right: 8px; text-align: center; color: var(--text-soft);"></i>
+                <div><strong ng-if="profile.role !== 'admin'">SAP:</strong><strong
+                        ng-if="profile.role === 'admin'">Admin ID:</strong> {{ profile.sap_id }}</div>
+            </div>
+            <div style="display: flex; align-items: center;"><i class="fa-solid fa-envelope"
+                    style="width: 20px; margin-right: 8px; text-align: center; color: var(--text-soft);"></i>
+                <div><strong>Email:</strong> {{ profile.email }}</div>
+            </div>
+            <div ng-if="profile.role !== 'admin'" style="display: flex; align-items: center;"><i
+                    class="fa-solid fa-graduation-cap"
+                    style="width: 20px; margin-right: 8px; text-align: center; color: var(--text-soft);"></i>
+                <div><strong>Course:</strong> {{ profile.course }}</div>
+            </div>
+            <div ng-if="profile.role !== 'admin'" style="display: flex; align-items: center;"><i
+                    class="fa-solid fa-building-columns"
+                    style="width: 20px; margin-right: 8px; text-align: center; color: var(--text-soft);"></i>
+                <div><strong>Dept:</strong> {{ profile.department }}</div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Right Column: Student History organized by status -->
+    <div ng-if="profile.role !== 'admin'">
+
+        <!-- Tab Navigation for Students -->
+        <div class="admin-tabs" style="margin-bottom: 2.5rem; justify-content: start; gap: 2rem;">
+            <button class="admin-tab" ng-class="{active: studentTab === 'books'}" ng-click="switchStudentTab('books')">
+                <i class="fa-solid fa-book-bookmark"></i> Book Requests
+            </button>
+            <button class="admin-tab" ng-class="{active: studentTab === 'rooms'}" ng-click="switchStudentTab('rooms')">
+                <i class="fa-solid fa-door-open"></i> Room Bookings
+            </button>
+        </div>
+
+        <!-- Dynamic Content: Books -->
+        <div ng-if="studentTab === 'books'">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3.5rem;">
+                <!-- Pending Books -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-soft);"><i
+                            class="fa-solid fa-clock-rotate-left"></i> Pending Requests</h3>
+                    <div class="table-responsive glass-panel" style="border-radius: 12px; overflow: hidden;">
+                        <table style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="book in pendingBooks | filter:searchHistory">
+                                    <td><strong>{{ book.title }}</strong></td>
+                                    <td>{{ book.request_date }}</td>
+                                </tr>
+                                <tr ng-if="pendingBooks.length === 0">
+                                    <td colspan="2"
+                                        style="text-align: center; color: var(--text-soft); padding: 1.5rem;">No pending
+                                        requests.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Accepted Books -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--success);"><i
+                            class="fa-solid fa-circle-check"></i> Accepted Requests</h3>
+                    <div class="table-responsive glass-panel" style="border-radius: 12px; overflow: hidden;">
+                        <table style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="book in acceptedBooks | filter:searchHistory">
+                                    <td><strong>{{ book.title }}</strong></td>
+                                    <td>{{ book.request_date }}</td>
+                                </tr>
+                                <tr ng-if="acceptedBooks.length === 0">
+                                    <td colspan="2"
+                                        style="text-align: center; color: var(--text-soft); padding: 1.5rem;">No
+                                        accepted books.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Content: Rooms -->
+        <div ng-if="studentTab === 'rooms'">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Pending Rooms -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-soft);"><i
+                            class="fa-solid fa-clock-rotate-left"></i> Pending Requests</h3>
+                    <div class="table-responsive glass-panel" style="border-radius: 12px; overflow: hidden;">
+                        <table style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Room</th>
+                                    <th>Date</th>
+                                    <th>Slot</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="room in pendingRooms | filter:searchHistory">
+                                    <td><strong>{{ room.room_name }}</strong></td>
+                                    <td>{{ room.booking_date }}</td>
+                                    <td style="color: var(--text-soft); font-weight: 500;">{{ room.time_slot }}</td>
+                                </tr>
+                                <tr ng-if="pendingRooms.length === 0">
+                                    <td colspan="3"
+                                        style="text-align: center; color: var(--text-soft); padding: 1.5rem;">No pending
+                                        requests.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Accepted Rooms -->
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--success);"><i
+                            class="fa-solid fa-circle-check"></i> Accepted Requests</h3>
+                    <div class="table-responsive glass-panel" style="border-radius: 12px; overflow: hidden;">
+                        <table style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Room</th>
+                                    <th>Date</th>
+                                    <th>Slot</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="room in acceptedRooms | filter:searchHistory">
+                                    <td><strong>{{ room.room_name }}</strong></td>
+                                    <td>{{ room.booking_date }}</td>
+                                    <td style="color: var(--success); font-weight: 600;">{{ room.time_slot }}</td>
+                                </tr>
+                                <tr ng-if="acceptedRooms.length === 0">
+                                    <td colspan="3"
+                                        style="text-align: center; color: var(--text-soft); padding: 1.5rem;">No
+                                        approved bookings.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Admin System Overview -->
+    <div ng-if="profile.role === 'admin'"
+        style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; padding-top: 1rem;">
+        <h2
+            style="font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--primary-color); font-family: 'Playfair Display', serif;">
+            System Overview</h2>
+        <p style="color: var(--text-soft); font-size: 1.1rem; margin-bottom: 2.5rem;">Quick insights into ongoing
+            library operations.</p>
+
+        <div style="display: flex; gap: 2rem; width: 100%; max-width: 600px; justify-content: center;">
+            <div
+                style="flex: 1; padding: 2rem; border-radius: 12px; border: 1px solid var(--surface-border); background: rgba(0,0,0,0.02);">
+                <i class="fa-solid fa-book"
+                    style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.8;"></i>
+                <h3 style="font-size: 2.5rem; color: var(--text-main); margin-bottom: 0.5rem;">{{ (adminRequests.books |
+                    filter:{status:'pending'}).length || 0 }}</h3>
+                <p style="color: var(--text-soft); font-size: 0.95rem; font-weight: 600; text-transform: uppercase;">
+                    Pending Books</p>
+            </div>
+
+            <div
+                style="flex: 1; padding: 2rem; border-radius: 12px; border: 1px solid var(--surface-border); background: rgba(0,0,0,0.02);">
+                <i class="fa-solid fa-users-viewfinder"
+                    style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; opacity: 0.8;"></i>
+                <h3 style="font-size: 2.5rem; color: var(--text-main); margin-bottom: 0.5rem;">{{ (adminRequests.rooms |
+                    filter:{status:'pending'}).length || 0 }}</h3>
+                <p style="color: var(--text-soft); font-size: 0.95rem; font-weight: 600; text-transform: uppercase;">
+                    Pending Rooms</p>
+            </div>
+        </div>
+
+
+    </div>
+
+</div><br>
+
+<!-- ==============================================
+     ADMIN PANEL MANAGEMENT (Visible ONLY to Admins)
+     ============================================== -->
+<div class="admin-panel glass-panel" ng-if="profile.role === 'admin'" style="margin-top: 0;">
+    <h2><i class="fa-solid fa-inbox"></i> Pending Requests Dashboard</h2>
+
+    <div style="margin-top: 1.5rem;">
+        <!-- Admin Request Tabs -->
+        <div class="admin-tabs"
+            style="border-bottom: 2px solid var(--surface-border); margin-bottom: 2rem; justify-content: start; gap: 3rem; padding-bottom: 0;">
+            <button class="admin-tab" ng-class="{active: adminRequestTab === 'books'}"
+                ng-click="switchAdminRequestTab('books')"
+                style="padding: 0.8rem 0; border-radius: 0; border: none; margin-bottom: -2px; background: transparent;">
+                <i class="fa-solid fa-book-bookmark"></i> Book Requests
+            </button>
+            <button class="admin-tab" ng-class="{active: adminRequestTab === 'rooms'}"
+                ng-click="switchAdminRequestTab('rooms')"
+                style="padding: 0.8rem 0; border-radius: 0; border: none; margin-bottom: -2px; background: transparent;">
+                <i class="fa-solid fa-door-open"></i> Room Bookings
+            </button>
+        </div>
+
+        <!-- Admin Request Error Banner -->
+        <div class="error-text" ng-show="adminRequestError"
+            style="margin-bottom: 1.5rem; text-align: center; font-size: 1rem;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ adminRequestError }}
+        </div>
+
+        <!-- Admin Pending Books -->
+        <div ng-if="adminRequestTab === 'books'">
+            <div class="table-responsive" style="margin-bottom: 2rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Req ID</th>
+                            <th>User</th>
+                            <th>Book Title</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="req in adminRequests.books" ng-if="req.status === 'pending'">
+                            <td>#{{ req.id }}</td>
+                            <td>{{ req.name }}</td>
+                            <td>{{ req.title }}</td>
+                            <td>{{ req.request_date }}</td>
+                            <td style="display: flex; gap: 8px; justify-content: flex-start; align-items: center;">
+                                <button class="btn-secondary"
+                                    style="background:var(--success); color:white; border:none; padding:6px 12px; margin: 0; min-width: 80px;"
+                                    ng-click="updateBookStatus(req.id, 'accepted')">Approve</button>
+                                <button class="btn-secondary"
+                                    style="background:var(--error); color:white; border:none; padding:6px 12px; margin: 0; min-width: 80px;"
+                                    ng-click="updateBookStatus(req.id, 'rejected')">Reject</button>
+                            </td>
+                        </tr>
+                        <tr ng-if="(adminRequests.books | filter:{status:'pending'}).length === 0">
+                            <td colspan="5" style="text-align: center; color: var(--text-soft); padding: 2rem;">No
+                                pending book requests.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Pending Rooms -->
+        <div ng-if="adminRequestTab === 'rooms'">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Req ID</th>
+                            <th>User</th>
+                            <th>Room Name</th>
+                            <th>Date | Slot</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="req in adminRequests.rooms" ng-if="req.status === 'pending'">
+                            <td>#{{ req.id }}</td>
+                            <td>{{ req.name }}</td>
+                            <td>{{ req.room_name }}</td>
+                            <td>{{ req.booking_date }} | {{ req.time_slot }}</td>
+                            <td style="display: flex; gap: 8px; justify-content: flex-start; align-items: center;">
+                                <button class="btn-secondary"
+                                    style="background:var(--success); color:white; border:none; padding:6px 12px; margin: 0; min-width: 80px;"
+                                    ng-click="updateRoomStatus(req.id, 'accepted')">Approve</button>
+                                <button class="btn-secondary"
+                                    style="background:var(--error); color:white; border:none; padding:6px 12px; margin: 0; min-width: 80px;"
+                                    ng-click="updateRoomStatus(req.id, 'rejected')">Reject</button>
+                            </td>
+                        </tr>
+                        <tr ng-if="(adminRequests.rooms | filter:{status:'pending'}).length === 0">
+                            <td colspan="5" style="text-align: center; color: var(--text-soft); padding: 2rem;">No
+                                pending room bookings.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

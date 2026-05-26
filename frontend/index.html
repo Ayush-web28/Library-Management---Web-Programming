@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="LibraryApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMIMS Library - Premium Library Management System</title>
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body ng-controller="MainController as mainCtrl" ng-cloak>
+    
+    <!-- V3 BACKGROUND LAYERS -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="mouse-glow" id="mouseGlow"></div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="#/!"><i class="fa-solid fa-book-open-reader"></i> NMIMS Library</a>
+        </div>
+        <!-- Main App Navigation (Only shown when logged in) -->
+        <ul class="example-2" ng-show="isLoggedIn()">
+            <!-- Student / General Tabs -->
+            <li class="icon-content" ng-if="user.role !== 'admin'">
+                <a href="#!/books" data-social="catalog">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-swatchbook"></i>
+                </a>
+                <div class="tooltip">Catalog</div>
+            </li>
+            <li class="icon-content">
+                <a href="#!/seats" data-social="seats">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-chair"></i>
+                </a>
+                <div class="tooltip">Seats & Bookings</div>
+            </li>
+            <li class="icon-content" ng-if="user.role !== 'admin'">
+                <a href="#!/gpa" data-social="gpa">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-calculator"></i>
+                </a>
+                <div class="tooltip">GPA Calculator</div>
+            </li>
+            <li class="icon-content" ng-if="user.role !== 'admin'">
+                <a href="#!/profile" data-social="profile">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-user"></i>
+                </a>
+                <div class="tooltip">Profile</div>
+            </li>
+            
+            <!-- Admin Specific Tabs -->
+            <li class="icon-content" ng-if="user.role === 'admin'">
+                <a href="#!/profile" data-social="profile">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-inbox"></i>
+                </a>
+                <div class="tooltip">Pending Requests</div>
+            </li>
+            <li class="icon-content" ng-if="user.role === 'admin'">
+                <a href="#!/inventory" data-social="catalog">
+                    <span class="filled"></span>
+                    <i class="fa-solid fa-book-bookmark"></i>
+                </a>
+                <div class="tooltip">Book Inventory</div>
+            </li>
+
+        </ul>
+        
+        <!-- Auth Links & Theme -->
+        <div class="nav-links" style="display: flex; gap: 1rem; align-items: center; justify-content: flex-end; margin-left: auto;">
+            <button class="theme-toggle-btn" ng-click="toggleTheme()" style="margin-right: 15px;">
+                <span ng-if="theme === 'dark'"><i class="fa-solid fa-sun"></i> Light</span>
+                <span ng-if="theme === 'light'"><i class="fa-solid fa-moon"></i> Dark</span>
+            </button>
+            <a href="#!/login" ng-show="!isLoggedIn()"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+            <a href="" ng-click="logout()" ng-show="isLoggedIn()" style="font-size: 0.9rem;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content Rendering Area -->
+    <main class="container">
+        <div ng-view></div>
+    </main>
+
+    <!-- Application Scripts -->
+    <script>var cacheBust = new Date().getTime();</script>
+    <script>document.write('<script src="js/app.js?v=' + cacheBust + '"><\/script>');</script>
+    <script>document.write('<script src="js/auth.js?v=' + cacheBust + '"><\/script>');</script>
+    <script>document.write('<script src="js/books.js?v=' + cacheBust + '"><\/script>');</script>
+    <script>document.write('<script src="js/seats.js?v=' + cacheBust + '"><\/script>');</script>
+    <script>document.write('<script src="js/gpa.js?v=' + cacheBust + '"><\/script>');</script>
+    <script>document.write('<script src="js/profile.js?v=' + cacheBust + '"><\/script>');</script>
+    
+    <!-- V3 Mouse Tracking Glow Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const glow = document.getElementById("mouseGlow");
+            if (!glow) return;
+            
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let glowX = mouseX;
+            let glowY = mouseY;
+            
+            window.addEventListener("mousemove", (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // requestAnimationFrame for smooth 60fps tracking
+            function animateGlow() {
+                // Lerp (Linear Interpolation) for smooth dragging effect
+                glowX += (mouseX - glowX) * 0.15;
+                glowY += (mouseY - glowY) * 0.15;
+                glow.style.transform = `translate(${glowX}px, ${glowY}px) translate(-50%, -50%)`;
+                requestAnimationFrame(animateGlow);
+            }
+            animateGlow();
+        });
+    </script>
+</body>
+</html>

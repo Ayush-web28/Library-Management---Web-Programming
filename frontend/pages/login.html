@@ -1,0 +1,228 @@
+<div class="form-card" style="max-width: 600px; position: relative;">
+
+    <!-- OTP PREMIUM TOAST -->
+    <div class="otp-toast-container" ng-show="otpToast" class="fade-in">
+        <div class="otp-toast">
+            <div class="otp-header">
+                <h3><i class="fa-solid fa-key"></i> New OTP Alert</h3>
+                <button class="close-toast" ng-click="closeOtpToast()">&times;</button>
+            </div>
+            <p>Your 6-digit verification code is:</p>
+            <div class="otp-display">
+                <span class="otp-number">{{ otpToast.otp }}</span>
+                <button class="btn-copy" ng-click="copyOtp()" ng-class="{'copied': otpToast.copied}">
+                    <i class="fa-solid" ng-class="otpToast.copied ? 'fa-check' : 'fa-copy'"></i>
+                    {{ otpToast.copied ? 'COPIED' : 'COPY' }}
+                </button>
+            </div>
+            <p class="otp-footer">Valid for this session only.</p>
+        </div>
+    </div>
+
+    <!-- STEP 1: ROLE SELECTION -->
+    <div ng-show="!selectedRole">
+        <p style="text-align: center; color: var(--text-soft); margin-bottom: 2rem;">Please select your role to
+            continue.</p>
+
+        <div class="role-container">
+            <div class="role-card" ng-click="selectedRole = 'student'">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h3>Student</h3>
+                <p style="font-size: 0.8rem; color: var(--text-soft); margin-top: 0.5rem;">Access books &amp; seating
+                </p>
+            </div>
+            <div class="role-card" ng-click="selectedRole = 'admin'">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Admin</h3>
+                <p style="font-size: 0.8rem; color: var(--text-soft); margin-top: 0.5rem;">Manage library system</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: AUTHENTICATION FORMS -->
+    <div ng-show="selectedRole" class="fade-in">
+        <button class="btn-secondary" style="margin-bottom: 1.5rem; padding: 0.4rem 0.8rem;" ng-click="resetForms()">
+            <i class="fa-solid fa-arrow-left"></i> Back to Roles
+        </button>
+
+        <!-- LOGIN FORM -->
+        <form name="loginForm" ng-submit="login()" ng-show="isLogin">
+            <div class="form-group">
+                <label><i class="fa-solid fa-id-card"></i> {{ selectedRole === 'admin' ? 'Admin ID (11 Digits)' : 'SAP
+                    ID (11 Digits)' }}</label>
+                <input type="text" ng-model="loginData.sap_id" name="sap_id" required pattern="\d{11}"
+                    placeholder="e.g. 70012345601">
+                <span class="error-text" ng-show="loginForm.sap_id.$touched && loginForm.sap_id.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> SAP/Admin ID is required.
+                </span>
+                <span class="error-text" ng-show="loginForm.sap_id.$touched && loginForm.sap_id.$error.pattern">
+                    <i class="fa-solid fa-circle-exclamation"></i> Must be exactly 11 digits.
+                </span>
+            </div>
+
+            <div class="form-group" ng-show="!loginData.useOtp">
+                <label><i class="fa-solid fa-lock"></i> Password</label>
+                <div style="position: relative;">
+                    <input type="{{showPasswordLogin ? 'text' : 'password'}}" ng-model="loginData.password" name="password" ng-required="!loginData.useOtp"
+                        placeholder="Enter password" style="padding-right: 45px;">
+                    <i class="fa-solid" ng-class="showPasswordLogin ? 'fa-eye' : 'fa-eye-slash'" 
+                        ng-click="showPasswordLogin = !showPasswordLogin"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-soft); font-size: 1.1rem; transition: color 0.3s;"></i>
+                </div>
+                <span class="error-text"
+                    ng-show="loginForm.password.$touched && loginForm.password.$error.required && !loginData.useOtp">
+                    <i class="fa-solid fa-circle-exclamation"></i> Password is required.
+                </span>
+            </div>
+
+            <div class="form-group" ng-show="loginData.useOtp">
+                <label><i class="fa-solid fa-envelope-open-text"></i> OTP</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" ng-model="loginData.otp" name="otp" ng-required="loginData.useOtp"
+                        placeholder="Enter 6-digit OTP" style="flex: 1;">
+                    <button type="button" class="btn-secondary" style="padding: 0 1rem;" ng-click="generateOtp()">
+                        Get OTP
+                    </button>
+                </div>
+                <span class="error-text"
+                    ng-show="loginForm.otp.$touched && loginForm.otp.$error.required && loginData.useOtp">
+                    <i class="fa-solid fa-circle-exclamation"></i> OTP is required.
+                </span>
+            </div>
+
+            <div class="form-group"
+                style="display: flex; gap: 10px; align-items: center; color: var(--text-soft); font-size: 0.9rem;"
+                ng-if="selectedRole === 'student'">
+                <input type="checkbox" ng-model="loginData.useOtp" style="width: auto;"> Login via OTP
+            </div>
+
+            <div class="error-text" ng-show="loginError" style="margin-bottom: 1rem; text-align: center;"><i
+                    class="fa-solid fa-circle-exclamation"></i> {{ loginError }}</div>
+
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+
+            <div class="switch-form" ng-show="selectedRole !== 'admin'">
+                Don't have an account? <a ng-click="isLogin = false" style="cursor: pointer;">Sign Up</a>
+            </div>
+        </form>
+
+        <!-- SIGNUP FORM -->
+        <form name="signupForm" ng-submit="signup()" ng-show="!isLogin">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" ng-model="signupData.name" name="name" required minlength="2" placeholder="John Doe">
+                <span class="error-text" ng-show="signupForm.name.$touched && signupForm.name.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Full name is required.
+                </span>
+                <span class="error-text" ng-show="signupForm.name.$touched && signupForm.name.$error.minlength">
+                    <i class="fa-solid fa-circle-exclamation"></i> Name must be at least 2 characters.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label>{{ selectedRole === 'admin' ? 'Admin ID (11 Digits)' : 'SAP ID (11 Digits)' }}</label>
+                <input type="text" ng-model="signupData.sap_id" name="sap_id" required pattern="\d{11}"
+                    placeholder="70012345601">
+                <span class="error-text" ng-show="signupForm.sap_id.$touched && signupForm.sap_id.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> SAP/Admin ID is required.
+                </span>
+                <span class="error-text" ng-show="signupForm.sap_id.$touched && signupForm.sap_id.$error.pattern">
+                    <i class="fa-solid fa-circle-exclamation"></i> Must be exactly 11 digits (numbers only).
+                </span>
+                <span class="error-text" ng-show="signupFieldErrors.sap_id">
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ signupFieldErrors.sap_id }}
+                </span>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 1rem;" ng-if="selectedRole === 'student'">
+                <div style="flex: 1;">
+                    <label>Course</label>
+                    <select ng-model="signupData.course" name="course" ng-required="selectedRole === 'student'">
+                        <option value="">Select Course</option>
+                        <option value="BTech">BTech</option>
+                        <option value="MBA Tech">MBA Tech</option>
+                        <option value="BTI">BTI</option>
+                        <option value="CSBS">CSBS</option>
+                    </select>
+                    <span class="error-text" ng-show="signupForm.course.$touched && signupForm.course.$error.required">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please select a course.
+                    </span>
+                </div>
+                <div style="flex: 1;">
+                    <label>Department</label>
+                    <select ng-model="signupData.department" name="department" ng-required="selectedRole === 'student'">
+                        <option value="">Select Dept</option>
+                        <option value="Computer Engineering">Computer Engineering</option>
+                        <option value="IT">IT</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="AI">AI</option>
+                        <option value="DS">DS</option>
+                    </select>
+                    <span class="error-text"
+                        ng-show="signupForm.department.$touched && signupForm.department.$error.required">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please select a department.
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>NMIMS Email</label>
+                <input type="email" ng-model="signupData.email" name="email" required pattern=".+@nmims\.in$"
+                    placeholder="john.doe@nmims.in">
+                <span class="error-text" ng-show="signupForm.email.$touched && signupForm.email.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Email is required.
+                </span>
+                <span class="error-text"
+                    ng-show="signupForm.email.$touched && (signupForm.email.$error.pattern || signupForm.email.$error.email)">
+                    <i class="fa-solid fa-circle-exclamation"></i> Must be a valid NMIMS email ending in @nmims.in
+                </span>
+                <span class="error-text" ng-show="signupFieldErrors.email">
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ signupFieldErrors.email }}
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" ng-model="signupData.phone" name="phone" required pattern="\d{10}"
+                    placeholder="10 digit number">
+                <span class="error-text" ng-show="signupForm.phone.$touched && signupForm.phone.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Phone number is required.
+                </span>
+                <span class="error-text" ng-show="signupForm.phone.$touched && signupForm.phone.$error.pattern">
+                    <i class="fa-solid fa-circle-exclamation"></i> Must be exactly 10 digits (numbers only).
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div style="position: relative;">
+                    <input type="{{showPasswordSignup ? 'text' : 'password'}}" ng-model="signupData.password" name="password" required minlength="6"
+                        placeholder="Minimum 6 characters" style="padding-right: 45px;">
+                    <i class="fa-solid" ng-class="showPasswordSignup ? 'fa-eye' : 'fa-eye-slash'" 
+                        ng-click="showPasswordSignup = !showPasswordSignup"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-soft); font-size: 1.1rem; transition: color 0.3s;"></i>
+                </div>
+                <span class="error-text" ng-show="signupForm.password.$touched && signupForm.password.$error.required">
+                    <i class="fa-solid fa-circle-exclamation"></i> Password is required.
+                </span>
+                <span class="error-text" ng-show="signupForm.password.$touched && signupForm.password.$error.minlength">
+                    <i class="fa-solid fa-circle-exclamation"></i> Password must be at least 6 characters.
+                </span>
+            </div>
+
+            <div class="error-text" ng-show="signupError" style="margin-bottom: 1rem; text-align: center;"><i
+                    class="fa-solid fa-circle-exclamation"></i> {{ signupError }}</div>
+            <div style="color: var(--success); text-align: center; margin-bottom: 1rem; font-weight: bold;"
+                ng-show="signupSuccess"><i class="fa-solid fa-circle-check"></i> {{ signupSuccess }}</div>
+
+            <button type="submit" class="btn-primary">Create Account</button>
+
+            <div class="switch-form">
+                Already have an account? <a ng-click="isLogin = true">Login</a>
+            </div>
+        </form>
+    </div>
+</div>

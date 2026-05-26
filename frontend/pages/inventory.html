@@ -1,0 +1,142 @@
+<div class="inventory-header" style="margin-bottom: 2rem;">
+    <h2><i class="fa-solid fa-book-bookmark"></i> Global Book Inventory</h2>
+    <button class="btn-add-primary" ng-click="showAddBook = !showAddBook" title="Add New Book">
+        <i class="fa-solid" ng-class="showAddBook ? 'fa-minus' : 'fa-plus'"></i>
+    </button>
+</div>
+
+<!-- Collapsible Add Book Form (Requirement 12) -->
+<!-- Collapsible Add Book Form (Synchronized Styling) -->
+<div class="admin-panel glass-panel" ng-if="showAddBook" style="margin-bottom: 2rem; margin-top: 0;">
+    <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-circle-plus"></i> Add New Book to Catalog</h3>
+    <p style="color: var(--text-soft); margin-bottom: 2rem;">Provision newly acquired physical books into the digital
+        catalog ecosystem.</p>
+
+    <div
+        style="background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 12px; border: 1px dashed var(--surface-border); max-width: 800px; margin: 0 auto;">
+        <form name="addBookForm" ng-submit="addBook()" novalidate>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label>Book ID (Unique Identifier)</label>
+                    <input type="text" ng-model="newBook.book_id" required placeholder="e.g. LIB-CS-101">
+                </div>
+                <div class="form-group">
+                    <label>Book Title</label>
+                    <input type="text" ng-model="newBook.title" required placeholder="e.g. Intro to AI">
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" ng-model="newBook.author" required placeholder="Author Name">
+                </div>
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex:1;">
+                        <label>Subject</label>
+                        <!-- Custom Add Book Subject Dropdown (Requirement 1) -->
+                        <div class="custom-dropdown-container" style="min-width: 0; width: 100%;">
+                            <div class="dropdown-header" ng-click="toggleAddSubject()"
+                                ng-class="{'active': showAddSubjectDropdown}"
+                                style="padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.95rem; justify-content: space-between;">
+                                <span>{{ getAddSubjectLabel() }}</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                            <div class="dropdown-menu" ng-class="{'active': showAddSubjectDropdown}"
+                                style="border-radius: 12px; top: calc(100% + 5px);">
+                                <div class="dropdown-item" ng-repeat="subj in dynamicSubjects"
+                                    ng-class="{'selected': newBook.subject === subj}" ng-click="selectAddSubject(subj)"
+                                    style="text-align: left; padding: 10px 15px; font-size: 0.9rem;">
+                                    {{ subj }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="flex:1;">
+                        <label>Copies</label>
+                        <input type="number" ng-model="newBook.total_copies" min="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <div class="error-text" ng-show="addBookError"><i class="fa-solid fa-circle-exclamation"></i> {{
+                    addBookError }}</div>
+                <div style="color: var(--success); font-weight: bold;" ng-show="addBookSuccess"><i
+                        class="fa-solid fa-circle-check"></i> {{ addBookSuccess }}</div>
+                <button type="submit" class="btn-primary" style="margin-top: 1rem;">Add to Library Database</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Requirement 7: Search (2/3) and Subject Filter (1/3) -->
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: flex-start;">
+    <!-- Search Pill (2/3) -->
+    <div class="search-bar-pill glass-panel"
+        style="flex: 2; min-width: 300px; height: 50px; box-sizing: border-box; padding: 0 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; border: 2px solid var(--primary-color);">
+        <i class="fa-solid fa-magnifying-glass" style="color: var(--primary-color); font-size: 1.2rem;"></i>
+        <input type="text" ng-model="adminSearchBook" placeholder="Search inventory by title, author, or ID..."
+            style="flex: 1; border: none; background: transparent; color: var(--text-main); font-size: 1.1rem; outline: none; padding: 0; min-height: 100%;">
+    </div>
+    <!-- Subject Filter (1/3) (Requirement 1 & 7) -->
+    <div class="custom-dropdown-container"
+        style="flex: 1; min-width: 200px; height: 50px; margin: 0; box-sizing: border-box;">
+        <div class="dropdown-header" ng-click="toggleInvSubject()" ng-class="{'active': showInvSubjectDropdown}"
+            style="border-radius: 50px; height: 100%; display: flex; align-items: center; padding: 0 25px; border: 2px solid var(--primary-color); box-sizing: border-box; font-size: 1rem; justify-content: space-between;">
+            <span>{{ getInvSubjectLabel() }}</span>
+            <i class="fa-solid fa-filter" style="color: var(--text-soft); font-size: 0.9rem;"></i>
+        </div>
+        <div class="dropdown-menu" ng-class="{'active': showInvSubjectDropdown}"
+            style="border-radius: 20px; top: calc(100% + 5px);">
+            <div class="dropdown-item" ng-click="selectInvSubject('')" ng-class="{'selected': !inventoryFilterSubject}">
+                All Subjects</div>
+            <div class="dropdown-item" ng-repeat="subj in dynamicSubjects"
+                ng-class="{'selected': inventoryFilterSubject === subj}" ng-click="selectInvSubject(subj)">
+                {{ subj }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table>
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Subject</th>
+                <th>Stock Context</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="book in inventory | filter:searchInventory track by book.id">
+                <td>#{{ book.book_id }}</td>
+                <td><strong>{{ book.title }}</strong></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.subject }}</td>
+                <td style="text-align: center;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" ng-model="book.available_hard_copies" ng-blur="updateStock(book)"
+                                ng-focus="trackOriginalStock(book)"
+                                ng-change="enforceMaxStock(book)"
+                                style="width: 70px; text-align: center; padding: 4px; border: 2px solid var(--primary-color); border-radius: 8px; background: rgba(95, 75, 139, 0.05); color: var(--text-main); font-weight: 800; font-size: 1.1rem; outline: none;">
+                            <span style="font-size: 1.2rem; font-weight: 600; color: var(--text-soft);">/ {{
+                                book.total_hard_copies }}</span>
+                        </div>
+                        <span
+                            style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; color: var(--text-soft); opacity: 0.8;">Available
+                            / Total</span>
+
+                        <!-- Inline Error -->
+                        <div ng-if="book.stockError"
+                            style="color: var(--error); font-size: 0.7rem; font-weight: bold; margin-top: 2px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> {{ book.stockError }}
+                        </div>
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+</div>
